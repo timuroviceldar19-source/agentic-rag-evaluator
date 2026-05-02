@@ -14,6 +14,7 @@ class Settings(BaseSettings):
     openai_api_key: str | None = None
     openai_model: str = "gpt-4o-mini"
     vector_store: Literal["local", "chroma"] = "local"
+    pipeline_engine: Literal["linear", "langgraph"] = "langgraph"
 
     model_config = SettingsConfigDict(
         env_file=".env",
