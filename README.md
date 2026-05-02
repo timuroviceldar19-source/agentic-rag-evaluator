@@ -1,8 +1,30 @@
 # Agentic RAG Evaluator
 
-Production-style AI portfolio project for building, testing, and explaining RAG answers.
+![CI](https://github.com/timuroviceldar19-source/agentic-rag-evaluator/actions/workflows/ci.yml/badge.svg)
+![Python](https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-Backend-009688?logo=fastapi&logoColor=white)
+![React](https://img.shields.io/badge/React-Dashboard-61DAFB?logo=react&logoColor=111827)
+![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white)
+
+Production-style multi-agent RAG platform for answering questions over documents and evaluating whether the answer is grounded in evidence.
 
 The app ingests documents, retrieves relevant chunks, generates an answer, and then runs a small multi-agent evaluation pipeline that checks whether the answer is grounded in the retrieved evidence.
+
+## Quick Links
+
+- [Why this project exists](#why-this-project-exists)
+- [Architecture](#architecture)
+- [Example run](#example-run)
+- [Quick start](#quick-start)
+- [Development](#development)
+
+## Highlights
+
+- Multi-agent RAG workflow with retrieval, answering, critique, evaluation, and reporting
+- Source-backed answers with relevance, groundedness, completeness, and hallucination risk
+- Zero-key local fallback for demos, optional OpenAI generation for stronger answers
+- `VECTOR_STORE=local` by default, `VECTOR_STORE=chroma` when ChromaDB is installed
+- FastAPI backend, React dashboard, Docker setup, GitHub Actions, and pytest coverage
 
 ## Screenshots
 
