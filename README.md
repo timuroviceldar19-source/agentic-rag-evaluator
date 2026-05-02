@@ -79,6 +79,7 @@ Retrieval Agent -> Answer Agent -> Critic Agent -> Evaluation Agent -> Report Ag
 ## Tech Stack
 
 - Backend: Python, FastAPI, Pydantic
+- Orchestration: LangGraph for agent graph, with a linear fallback engine
 - RAG: local hashed vector store by default, optional ChromaDB backend
 - LLM: optional OpenAI API, local fallback when no key is present
 - Frontend: React, TypeScript, Vite, lucide-react
@@ -145,6 +146,15 @@ OPENAI_MODEL=gpt-4o-mini
 ```
 
 Without a key, the app still works with a local extractive answer generator.
+
+### Pipeline Engine
+
+The agent pipeline can run in two engines, selected via `PIPELINE_ENGINE`:
+
+- `langgraph` (default) — agents wired as nodes in a `StateGraph`.
+- `linear` — straight Python function, useful as a baseline.
+
+Both produce the same `QueryResponse` shape. See [docs/architecture.md](docs/architecture.md) for the orchestration details.
 
 ### Vector Store Options
 
@@ -235,7 +245,6 @@ To add a new agent, create the logic in `backend/app/services/agents.py`, append
 
 - See [ROADMAP.md](ROADMAP.md) for issue-style milestones with scope and acceptance criteria.
 
-- Add LangGraph orchestration
 - Add RAGAS-style benchmark datasets
 - Add reranking
 - Add PostgreSQL history

@@ -2,6 +2,24 @@
 
 All notable changes to this project are documented here.
 
+## Unreleased
+
+### Added
+
+- LangGraph orchestration engine. Five agents are now nodes of a `StateGraph` with an explicit conditional edge for the empty-sources case. Selectable via `PIPELINE_ENGINE`; default is `langgraph`.
+- Linear engine remains available as `PIPELINE_ENGINE=linear` and as a regression baseline for benchmarks.
+- Pipeline factory in `app/services/pipeline_factory.py` selects the engine.
+- Tests `tests/test_graph.py` and `tests/test_pipeline_factory.py` covering the graph happy path, no-sources short-circuit, latency, schema parity with the linear engine, and factory selection.
+
+### Changed
+
+- `app/services/agents.py` slimmed down: shared scoring logic moved to `app/services/agent_helpers.py` and is reused by both engines.
+- API contract for `/query` unchanged. The agent trace still has 5 events on every call.
+
+### Dependencies
+
+- Added `langgraph==0.2.60`.
+
 ## v0.1.0 - 2026-05-02
 
 Initial portfolio-ready release of Agentic RAG Evaluator.
@@ -32,4 +50,3 @@ Initial portfolio-ready release of Agentic RAG Evaluator.
 - Backend tests: `pytest`
 - Frontend build: `npm run build`
 - Benchmark runner: `python scripts/run_benchmark.py`
-
