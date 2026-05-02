@@ -6,6 +6,11 @@
 ![React](https://img.shields.io/badge/React-Dashboard-61DAFB?logo=react&logoColor=111827)
 ![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white)
 
+[![Live Demo](https://img.shields.io/badge/demo-live-success?logo=vercel&logoColor=white)](https://agentic-rag-evaluator-ykzi.vercel.app)
+
+**Live demo:** https://agentic-rag-evaluator-ykzi.vercel.app  
+*(First request may take ~30 seconds — Render free tier sleeps after inactivity. Subsequent requests are instant.)*
+
 Production-style multi-agent RAG platform for answering questions over documents and evaluating whether the answer is grounded in evidence.
 
 The app ingests documents, retrieves relevant chunks, generates an answer, and then runs a small multi-agent evaluation pipeline that checks whether the answer is grounded in the retrieved evidence.
@@ -18,6 +23,7 @@ The app ingests documents, retrieves relevant chunks, generates an answer, and t
 - [Quick start](#quick-start)
 - [Development](#development)
 - [Roadmap](ROADMAP.md)
+- [Live demo](https://agentic-rag-evaluator-ykzi.vercel.app)
 
 ## Highlights
 
@@ -240,6 +246,34 @@ python scripts/run_benchmark.py --json
 ```
 
 To add a new agent, create the logic in `backend/app/services/agents.py`, append an `AgentTraceEvent`, and expose any new output through the Pydantic response models in `backend/app/models/schemas.py`.
+
+## Deployment
+
+The live demo is deployed across two providers:
+
+- **Frontend** on [Vercel](https://vercel.com) — auto-deploys on every push to `main`. Build runs `npm run build`, output served from `dist/`.
+- **Backend** on [Render](https://render.com) — Docker-based deploy from `backend/Dockerfile`, free tier (sleeps after 15 minutes of inactivity, hence the cold-start note above).
+
+Backend environment variables in production:
+
+| Variable | Value |
+|---|---|
+| `VECTOR_STORE` | `local` (JSON-backed, ephemeral on free tier — resets on restart) |
+| `PIPELINE_ENGINE` | `langgraph` |
+| `ALLOWED_ORIGINS` | The Vercel frontend URL |
+| `OPENAI_API_KEY` | *(unset)* — demo uses the local extractive fallback |
+
+Frontend environment variables:
+
+| Variable | Value |
+|---|---|
+| `VITE_API_BASE_URL` | The Render backend URL |
+
+To self-host:
+
+1. Fork the repo and connect both subdirectories to your hosting accounts.
+2. Set the env vars above.
+3. After the first deploy, update `ALLOWED_ORIGINS` on the backend to your actual frontend URL (using `*` permanently is incompatible with `allow_credentials=True`).
 
 ## Roadmap
 
