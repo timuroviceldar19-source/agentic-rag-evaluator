@@ -17,6 +17,7 @@ The app ingests documents, retrieves relevant chunks, generates an answer, and t
 - [Example run](#example-run)
 - [Quick start](#quick-start)
 - [Development](#development)
+- [Roadmap](ROADMAP.md)
 
 ## Highlights
 
@@ -218,6 +219,8 @@ npm run build
 To add a new agent, create the logic in `backend/app/services/agents.py`, append an `AgentTraceEvent`, and expose any new output through the Pydantic response models in `backend/app/models/schemas.py`.
 
 ## Roadmap
+
+- See [ROADMAP.md](ROADMAP.md) for issue-style milestones with scope and acceptance criteria.
 
 - Add LangGraph orchestration
 - Add RAGAS-style benchmark datasets
