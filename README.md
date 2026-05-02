@@ -28,11 +28,11 @@ The app ingests documents, retrieves relevant chunks, generates an answer, and t
 
 ## Screenshots
 
-![Document upload dashboard](docs/screenshots/01-upload-dashboard.png)
+<img src="https://raw.githubusercontent.com/timuroviceldar19-source/agentic-rag-evaluator/main/docs/screenshots/01-upload-dashboard.png" alt="Document upload dashboard" width="100%">
 
-![Answer with evaluation scores](docs/screenshots/02-answer-evaluation.png)
+<img src="https://raw.githubusercontent.com/timuroviceldar19-source/agentic-rag-evaluator/main/docs/screenshots/02-answer-evaluation.png" alt="Answer with evaluation scores" width="100%">
 
-![Agent trace panel](docs/screenshots/03-agent-trace.png)
+<img src="https://raw.githubusercontent.com/timuroviceldar19-source/agentic-rag-evaluator/main/docs/screenshots/03-agent-trace.png" alt="Agent trace panel" width="520">
 
 ## Why This Project Exists
 
