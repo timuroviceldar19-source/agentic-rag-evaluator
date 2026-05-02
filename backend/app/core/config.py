@@ -1,20 +1,27 @@
 from functools import lru_cache
 from pathlib import Path
-from typing import Literal
+from typing import Annotated, Literal
 
-from pydantic_settings import BaseSettings, SettingsConfigDict
+from pydantic import Field, field_validator
+from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
 
 
 class Settings(BaseSettings):
     app_name: str = "Agentic RAG Evaluator"
-    allowed_origins: list[str] = [
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-    ]
+    allowed_origins: Annotated[list[str], NoDecode] = Field(
+        default=["http://localhost:5173", "http://127.0.0.1:5173"]
+    )
     openai_api_key: str | None = None
     openai_model: str = "gpt-4o-mini"
     vector_store: Literal["local", "chroma"] = "local"
     pipeline_engine: Literal["linear", "langgraph"] = "langgraph"
+
+    @field_validator("allowed_origins", mode="before")
+    @classmethod
+    def _split_origins(cls, value):
+        if isinstance(value, str):
+            return [origin.strip() for origin in value.split(",") if origin.strip()]
+        return value
 
     model_config = SettingsConfigDict(
         env_file=".env",
