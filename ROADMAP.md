@@ -31,6 +31,10 @@ LangGraph makes the agent flow explicit, easier to visualize, and closer to prod
 
 Add a small benchmark workflow for evaluating RAG answer quality across a repeatable set of questions.
 
+### Status
+
+Initial benchmark runner added. Future work can replace the heuristic metrics with a full RAGAS integration.
+
 ### Why It Matters
 
 A portfolio RAG project is stronger when it shows repeatable evaluation, not only one-off answers.
@@ -116,4 +120,3 @@ A working demo lowers friction and makes the project easier to evaluate quickly.
 - Public URL opens the dashboard.
 - Sample document workflow works in the deployed environment.
 - README includes the demo link and deployment notes.
-

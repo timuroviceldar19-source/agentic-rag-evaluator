@@ -1,0 +1,33 @@
+{
+  "name": "AI Engineer hiring notes benchmark",
+  "description": "Small RAG quality benchmark for the sample knowledge base.",
+  "document": "../../docs/sample_knowledge_base.md",
+  "top_k": 5,
+  "questions": [
+    {
+      "id": "skills",
+      "question": "What skills should an AI Engineer know?",
+      "expected_terms": ["python", "fastapi", "embeddings", "vector search", "retrieval augmented generation", "evaluation", "docker"]
+    },
+    {
+      "id": "hallucination_reduction",
+      "question": "How can strong candidates reduce hallucinations?",
+      "expected_terms": ["citing", "sources", "groundedness", "traces", "retrieval quality", "testing prompts"]
+    },
+    {
+      "id": "observability",
+      "question": "What metrics are useful for production AI observability?",
+      "expected_terms": ["latency", "cost", "retrieval relevance", "answer groundedness", "user feedback"]
+    },
+    {
+      "id": "agentic_workflows",
+      "question": "When are agentic systems useful?",
+      "expected_terms": ["planning", "retrieval", "answer generation", "critique", "report generation"]
+    },
+    {
+      "id": "applied_llm_systems",
+      "question": "What distinguishes AI Engineers from people who only write prompts?",
+      "expected_terms": ["applied llm systems", "not only writing prompts"]
+    }
+  ]
+}

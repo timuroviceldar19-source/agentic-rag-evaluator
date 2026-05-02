@@ -216,6 +216,19 @@ cd frontend
 npm run build
 ```
 
+Run the RAG quality benchmark:
+
+```bash
+cd backend
+python scripts/run_benchmark.py
+```
+
+For JSON output:
+
+```bash
+python scripts/run_benchmark.py --json
+```
+
 To add a new agent, create the logic in `backend/app/services/agents.py`, append an `AgentTraceEvent`, and expose any new output through the Pydantic response models in `backend/app/models/schemas.py`.
 
 ## Roadmap
