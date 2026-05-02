@@ -6,8 +6,8 @@ from pydantic import BaseModel, Field
 
 from app.core.config import Settings
 from app.models.schemas import QueryResponse
-from app.services.agents import AgenticRAGPipeline
 from app.services.document_loader import load_document
+from app.services.pipeline_factory import Pipeline, create_pipeline
 from app.services.vector_store import VectorStore, tokenize
 
 
@@ -66,7 +66,7 @@ class BenchmarkRunner:
         with tempfile.TemporaryDirectory() as temp_dir:
             store = VectorStore(Path(temp_dir) / "benchmark_store.json")
             self._index_document(store, document_path)
-            pipeline = AgenticRAGPipeline(store, self.settings)
+            pipeline = create_pipeline(store, self.settings)
 
             results = [
                 self._run_question(pipeline, question, dataset.top_k)
@@ -95,7 +95,7 @@ class BenchmarkRunner:
 
     def _run_question(
         self,
-        pipeline: AgenticRAGPipeline,
+        pipeline: Pipeline,
         question: BenchmarkQuestion,
         top_k: int,
     ) -> BenchmarkQuestionResult:
@@ -202,4 +202,3 @@ def _average(values: list[int]) -> int:
     if not values:
         return 0
     return round(sum(values) / len(values))
-

@@ -2,15 +2,15 @@ from fastapi import APIRouter, File, HTTPException, UploadFile
 
 from app.core.config import get_settings
 from app.models.schemas import DocumentInfo, QueryRequest, QueryResponse, UploadResponse
-from app.services.agents import AgenticRAGPipeline
 from app.services.document_loader import load_document
+from app.services.pipeline_factory import create_pipeline
 from app.services.vector_store import create_vector_store
 
 
 router = APIRouter()
 settings = get_settings()
 vector_store = create_vector_store(settings)
-pipeline = AgenticRAGPipeline(vector_store, settings)
+pipeline = create_pipeline(vector_store, settings)
 
 
 @router.get("/health")
