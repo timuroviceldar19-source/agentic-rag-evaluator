@@ -3,7 +3,7 @@ import time
 from langgraph.graph import END, StateGraph
 
 from app.core.config import Settings
-from app.models.schemas import QueryResponse
+from app.models.schemas import QueryResponse, TokenUsage
 from app.services.agent_helpers import evaluate
 from app.services.graph.nodes import (
     critique,
@@ -47,6 +47,7 @@ class LangGraphPipeline:
             evaluation=evaluation,
             agent_trace=final_state.get("trace", []),
             latency_ms=final_state.get("latency_ms", 0),
+            usage=final_state.get("usage", TokenUsage()),
         )
 
     def _build(self):

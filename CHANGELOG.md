@@ -13,6 +13,7 @@ All notable changes to this project are documented here.
 - Model comparison endpoint `/query/compare` and dashboard view for side-by-side LangGraph versus linear baseline evaluation.
 - RAGAS-style benchmark metrics for faithfulness, answer relevance, context precision, and context recall, with Markdown/JSON CLI export.
 - Query history persistence for questions, answers, scores, sources, latency, and agent traces, plus a dashboard recent-runs panel.
+- Token usage and configurable cost tracking for query responses and saved history runs.
 
 ### Changed
 

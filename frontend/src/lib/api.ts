@@ -42,6 +42,14 @@ export type QueryResponse = {
   evaluation: EvaluationResult;
   agent_trace: AgentTraceEvent[];
   latency_ms: number;
+  usage: TokenUsage;
+};
+
+export type TokenUsage = {
+  prompt_tokens: number;
+  completion_tokens: number;
+  total_tokens: number;
+  estimated_cost_usd: number;
 };
 
 export type PipelineEngine = "linear" | "langgraph";
@@ -82,6 +90,10 @@ export type QueryHistoryItem = {
   hallucination_risk: "low" | "medium" | "high";
   source_count: number;
   latency_ms: number;
+  prompt_tokens: number;
+  completion_tokens: number;
+  total_tokens: number;
+  estimated_cost_usd: number;
   pipeline_engine: PipelineEngine;
   generation_mode: GenerationMode;
   model: string;

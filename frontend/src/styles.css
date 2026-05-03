@@ -359,6 +359,22 @@ button:disabled {
   font-weight: 800;
 }
 
+.usage-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.usage-meta span {
+  border-radius: 999px;
+  background: #edf2f7;
+  color: #344054;
+  padding: 7px 10px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
 .comparison-answer {
   min-height: 170px;
   max-height: 340px;

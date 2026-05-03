@@ -16,6 +16,8 @@ class Settings(BaseSettings):
     vector_store: Literal["local", "chroma"] = "local"
     pipeline_engine: Literal["linear", "langgraph"] = "langgraph"
     database_url: str | None = None
+    openai_input_cost_per_1m_tokens: float = 0.0
+    openai_output_cost_per_1m_tokens: float = 0.0
 
     @field_validator("allowed_origins", mode="before")
     @classmethod

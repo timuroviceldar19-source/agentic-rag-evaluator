@@ -37,6 +37,7 @@ class QueryHistoryStore:
         created_at = datetime.now(UTC).isoformat()
         response_json = json.dumps(response.model_dump(), ensure_ascii=False)
         evaluation = response.evaluation
+        usage = response.usage
 
         values = (
             run_id,
@@ -49,6 +50,10 @@ class QueryHistoryStore:
             evaluation.hallucination_risk,
             len(response.sources),
             response.latency_ms,
+            usage.prompt_tokens,
+            usage.completion_tokens,
+            usage.total_tokens,
+            usage.estimated_cost_usd,
             pipeline_engine,
             generation_mode,
             model,
@@ -63,7 +68,8 @@ class QueryHistoryStore:
                     "INSERT INTO query_runs ("
                     "run_id, created_at, question, answer, relevance_score, "
                     "groundedness_score, completeness_score, hallucination_risk, "
-                    "source_count, latency_ms, pipeline_engine, generation_mode, "
+                    "source_count, latency_ms, prompt_tokens, completion_tokens, "
+                    "total_tokens, estimated_cost_usd, pipeline_engine, generation_mode, "
                     "model, run_label, run_type, response_json"
                     f") VALUES ({placeholders})"
                 ),
@@ -82,6 +88,10 @@ class QueryHistoryStore:
             hallucination_risk=evaluation.hallucination_risk,
             source_count=len(response.sources),
             latency_ms=response.latency_ms,
+            prompt_tokens=usage.prompt_tokens,
+            completion_tokens=usage.completion_tokens,
+            total_tokens=usage.total_tokens,
+            estimated_cost_usd=usage.estimated_cost_usd,
             pipeline_engine=pipeline_engine,
             generation_mode=generation_mode,
             model=model,
@@ -97,7 +107,8 @@ class QueryHistoryStore:
                 (
                     "SELECT run_id, created_at, question, answer, relevance_score, "
                     "groundedness_score, completeness_score, hallucination_risk, "
-                    "source_count, latency_ms, pipeline_engine, generation_mode, "
+                    "source_count, latency_ms, prompt_tokens, completion_tokens, "
+                    "total_tokens, estimated_cost_usd, pipeline_engine, generation_mode, "
                     "model, run_label, run_type, response_json "
                     f"FROM query_runs ORDER BY created_at DESC LIMIT {self.placeholder}"
                 ),
@@ -124,6 +135,10 @@ class QueryHistoryStore:
                     hallucination_risk TEXT NOT NULL,
                     source_count INTEGER NOT NULL,
                     latency_ms INTEGER NOT NULL,
+                    prompt_tokens INTEGER NOT NULL DEFAULT 0,
+                    completion_tokens INTEGER NOT NULL DEFAULT 0,
+                    total_tokens INTEGER NOT NULL DEFAULT 0,
+                    estimated_cost_usd REAL NOT NULL DEFAULT 0,
                     pipeline_engine TEXT NOT NULL,
                     generation_mode TEXT NOT NULL,
                     model TEXT NOT NULL,
@@ -133,8 +148,31 @@ class QueryHistoryStore:
                 )
                 """
             )
+            self._ensure_usage_columns(connection)
             connection.commit()
         self._schema_ready = True
+
+    def _ensure_usage_columns(self, connection: Any) -> None:
+        existing_columns = self._column_names(connection)
+        for name, definition in {
+            "prompt_tokens": "INTEGER NOT NULL DEFAULT 0",
+            "completion_tokens": "INTEGER NOT NULL DEFAULT 0",
+            "total_tokens": "INTEGER NOT NULL DEFAULT 0",
+            "estimated_cost_usd": "REAL NOT NULL DEFAULT 0",
+        }.items():
+            if name not in existing_columns:
+                connection.execute(f"ALTER TABLE query_runs ADD COLUMN {name} {definition}")
+
+    def _column_names(self, connection: Any) -> set[str]:
+        if self.backend == "postgres":
+            cursor = connection.execute(
+                "SELECT column_name FROM information_schema.columns WHERE table_name = %s",
+                ("query_runs",),
+            )
+            return {row[0] for row in cursor.fetchall()}
+
+        cursor = connection.execute("PRAGMA table_info(query_runs)")
+        return {row[1] for row in cursor.fetchall()}
 
     @contextmanager
     def _connect(self) -> Iterator[Any]:
@@ -172,6 +210,10 @@ def _history_item_from_row(row: dict[str, Any]) -> QueryHistoryItem:
         hallucination_risk=row["hallucination_risk"],
         source_count=int(row["source_count"]),
         latency_ms=int(row["latency_ms"]),
+        prompt_tokens=int(row["prompt_tokens"]),
+        completion_tokens=int(row["completion_tokens"]),
+        total_tokens=int(row["total_tokens"]),
+        estimated_cost_usd=float(row["estimated_cost_usd"]),
         pipeline_engine=row["pipeline_engine"],
         generation_mode=row["generation_mode"],
         model=row["model"],

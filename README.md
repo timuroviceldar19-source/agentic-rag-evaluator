@@ -32,6 +32,7 @@ The app ingests documents, retrieves relevant chunks, generates an answer, and t
 - Side-by-side comparison for LangGraph orchestration versus the linear baseline
 - RAGAS-style benchmark with faithfulness, answer relevance, context precision, and context recall
 - Query history persistence for recent questions, answers, scores, sources, latency, and traces
+- Token usage and configurable cost estimates for OpenAI-backed runs
 - Zero-key local fallback for demos, optional OpenAI generation for stronger answers
 - `VECTOR_STORE=local` by default, `VECTOR_STORE=chroma` when ChromaDB is installed
 - FastAPI backend, React dashboard, Docker setup, GitHub Actions, and pytest coverage
@@ -47,6 +48,8 @@ The app ingests documents, retrieves relevant chunks, generates an answer, and t
 <img src="https://raw.githubusercontent.com/timuroviceldar19-source/agentic-rag-evaluator/main/docs/screenshots/04-model-comparison.png" alt="Model comparison view" width="100%">
 
 <img src="https://raw.githubusercontent.com/timuroviceldar19-source/agentic-rag-evaluator/main/docs/screenshots/05-query-history.png" alt="Recent query history panel" width="100%">
+
+<img src="https://raw.githubusercontent.com/timuroviceldar19-source/agentic-rag-evaluator/main/docs/screenshots/06-cost-tracking.png" alt="Token and cost tracking in saved runs" width="100%">
 
 ## Why This Project Exists
 
@@ -78,6 +81,7 @@ This project is built to demonstrate practical AI engineering skills: FastAPI, v
 - Display agent trace, latency, sources, and critic notes
 - Compare the same question across LangGraph and linear pipeline configurations
 - Persist recent query runs and reload saved answers from the dashboard
+- Track prompt tokens, completion tokens, total tokens, and estimated cost per run
 
 ## Architecture
 
@@ -97,6 +101,7 @@ Retrieval Agent -> Answer Agent -> Critic Agent -> Evaluation Agent -> Report Ag
 - Orchestration: LangGraph for agent graph, with a linear fallback engine
 - RAG: local hashed vector store by default, optional ChromaDB backend
 - LLM: optional OpenAI API, local fallback when no key is present
+- Cost tracking: OpenAI usage metadata plus configurable per-million-token rates
 - History: PostgreSQL via `DATABASE_URL`, with a local SQLite fallback for zero-config demos
 - Frontend: React, TypeScript, Vite, lucide-react
 - DevOps: Docker, Docker Compose, GitHub Actions
@@ -281,6 +286,8 @@ Backend environment variables in production:
 | `VECTOR_STORE` | `local` (JSON-backed, ephemeral on free tier — resets on restart) |
 | `PIPELINE_ENGINE` | `langgraph` |
 | `DATABASE_URL` | Optional. Defaults to local SQLite; set PostgreSQL for durable history |
+| `OPENAI_INPUT_COST_PER_1M_TOKENS` | Optional input token cost rate for estimates |
+| `OPENAI_OUTPUT_COST_PER_1M_TOKENS` | Optional output token cost rate for estimates |
 | `ALLOWED_ORIGINS` | The Vercel frontend URL |
 | `OPENAI_API_KEY` | *(unset)* — demo uses the local extractive fallback |
 

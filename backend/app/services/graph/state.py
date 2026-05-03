@@ -1,7 +1,7 @@
 from operator import add
 from typing import Annotated, TypedDict
 
-from app.models.schemas import AgentTraceEvent, EvaluationResult, SourceChunk
+from app.models.schemas import AgentTraceEvent, EvaluationResult, SourceChunk, TokenUsage
 
 
 class RAGState(TypedDict, total=False):
@@ -13,6 +13,6 @@ class RAGState(TypedDict, total=False):
     supported_claims: list[str]
     unsupported_claims: list[str]
     evaluation: EvaluationResult
+    usage: TokenUsage
     trace: Annotated[list[AgentTraceEvent], add]
     latency_ms: int
-

@@ -32,7 +32,8 @@ class AgenticRAGPipeline:
         )
 
         answer_started = time.perf_counter()
-        answer = self.llm.generate_answer(question, sources)
+        llm_result = self.llm.generate_answer(question, sources)
+        answer = llm_result.answer
         trace.append(
             make_event(
                 "Answer Agent",
@@ -90,4 +91,5 @@ class AgenticRAGPipeline:
             evaluation=evaluation,
             agent_trace=trace,
             latency_ms=total_ms,
+            usage=llm_result.usage,
         )

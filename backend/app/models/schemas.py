@@ -53,6 +53,13 @@ class QueryRequest(BaseModel):
     top_k: int = Field(default=5, ge=1, le=12)
 
 
+class TokenUsage(BaseModel):
+    prompt_tokens: int = Field(default=0, ge=0)
+    completion_tokens: int = Field(default=0, ge=0)
+    total_tokens: int = Field(default=0, ge=0)
+    estimated_cost_usd: float = Field(default=0.0, ge=0.0)
+
+
 class QueryResponse(BaseModel):
     question: str
     answer: str
@@ -60,6 +67,7 @@ class QueryResponse(BaseModel):
     evaluation: EvaluationResult
     agent_trace: list[AgentTraceEvent]
     latency_ms: int
+    usage: TokenUsage = Field(default_factory=TokenUsage)
 
 
 class QueryComparisonConfig(BaseModel):
@@ -111,6 +119,10 @@ class QueryHistoryItem(BaseModel):
     hallucination_risk: Literal["low", "medium", "high"]
     source_count: int
     latency_ms: int
+    prompt_tokens: int
+    completion_tokens: int
+    total_tokens: int
+    estimated_cost_usd: float
     pipeline_engine: PipelineEngine
     generation_mode: GenerationMode
     model: str

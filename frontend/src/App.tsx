@@ -322,7 +322,8 @@ function HistoryPanel({
             <strong>{item.question}</strong>
             <span>
               {formatEngine(item.pipeline_engine)} / {item.latency_ms} ms /{" "}
-              {item.source_count} sources
+              {item.source_count} sources / {formatTokens(item.total_tokens)} /{" "}
+              {formatCost(item.estimated_cost_usd)}
             </span>
           </button>
         ))}
@@ -360,6 +361,8 @@ function ComparisonCard({ run }: { run: QueryComparisonRun }) {
         <span>{formatGenerationMode(run.generation_mode)}</span>
         <span>{run.model}</span>
         <span>{run.top_k} sources</span>
+        <span>{formatTokens(response.usage.total_tokens)}</span>
+        <span>{formatCost(response.usage.estimated_cost_usd)}</span>
       </div>
 
       <pre className="comparison-answer">{response.answer || "No answer generated."}</pre>
@@ -407,6 +410,10 @@ function ResultView({ result }: { result: QueryResponse }) {
             <h2>Response</h2>
           </div>
           <span className="latency">{result.latency_ms} ms</span>
+        </div>
+        <div className="usage-meta">
+          <span>{formatTokens(result.usage.total_tokens)}</span>
+          <span>{formatCost(result.usage.estimated_cost_usd)}</span>
         </div>
         <pre>{result.answer}</pre>
       </article>
@@ -529,6 +536,16 @@ function formatEngine(engine: QueryComparisonRun["pipeline_engine"]) {
 
 function formatGenerationMode(mode: QueryComparisonRun["generation_mode"]) {
   return mode === "openai" ? "OpenAI" : "Local fallback";
+}
+
+function formatTokens(tokens: number) {
+  return `${tokens.toLocaleString()} tokens`;
+}
+
+function formatCost(cost: number) {
+  if (cost === 0) return "$0.00";
+  if (cost < 0.01) return `$${cost.toFixed(6)}`;
+  return `$${cost.toFixed(2)}`;
 }
 
 export default App;

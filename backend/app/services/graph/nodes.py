@@ -31,14 +31,15 @@ def make_retrieve_node(vector_store: VectorStore) -> Callable[[RAGState], dict]:
 def make_answer_node(llm: LLMClient) -> Callable[[RAGState], dict]:
     def answer(state: RAGState) -> dict:
         started_at = time.perf_counter()
-        generated_answer = llm.generate_answer(state["question"], state.get("sources", []))
+        llm_result = llm.generate_answer(state["question"], state.get("sources", []))
         return {
-            "answer": generated_answer,
+            "answer": llm_result.answer,
+            "usage": llm_result.usage,
             "trace": [
                 make_event(
                     "Answer Agent",
                     "Generate answer",
-                    "ok" if generated_answer else "warning",
+                    "ok" if llm_result.answer else "warning",
                     "Generated answer from retrieved context.",
                     started_at,
                 )
@@ -150,4 +151,3 @@ def route_after_retrieve(state: RAGState) -> Literal["answer", "skip_answer"]:
     if state.get("sources"):
         return "answer"
     return "skip_answer"
-

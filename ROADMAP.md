@@ -128,3 +128,30 @@ A working demo lowers friction and makes the project easier to evaluate quickly.
 - Public URL opens the dashboard.
 - Sample document workflow works in the deployed environment.
 - README includes the demo link and deployment notes.
+
+## 6. Add Cost and Token Tracking
+
+### Goal
+
+Track token usage and estimated cost for each query run.
+
+### Status
+
+Initial token and cost tracking added. OpenAI runs read usage metadata from the provider response, local fallback runs report zero tokens and zero cost, and query history preserves the accounting fields.
+
+### Why It Matters
+
+Production AI teams need to compare quality, latency, and cost together before choosing a model or retrieval configuration.
+
+### Scope
+
+- Add token usage fields to query responses.
+- Estimate cost through configurable per-million-token rates.
+- Persist usage and cost in query history.
+- Show usage and cost in the dashboard.
+
+### Acceptance Criteria
+
+- Local fallback runs show `0` tokens and `$0.00`.
+- OpenAI runs can store prompt, completion, total tokens, and estimated cost.
+- Recent run history displays usage and cost next to latency.

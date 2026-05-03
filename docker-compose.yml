@@ -9,6 +9,8 @@ services:
     environment:
       OPENAI_API_KEY: ${OPENAI_API_KEY:-}
       OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
+      OPENAI_INPUT_COST_PER_1M_TOKENS: ${OPENAI_INPUT_COST_PER_1M_TOKENS:-0}
+      OPENAI_OUTPUT_COST_PER_1M_TOKENS: ${OPENAI_OUTPUT_COST_PER_1M_TOKENS:-0}
       VECTOR_STORE: ${VECTOR_STORE:-local}
       DATABASE_URL: ${DATABASE_URL:-postgresql://rag:rag@postgres:5432/rag_history}
     volumes:
