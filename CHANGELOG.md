@@ -19,6 +19,7 @@ All notable changes to this project are documented here.
 
 - `app/services/agents.py` slimmed down: shared scoring logic moved to `app/services/agent_helpers.py` and is reused by both engines.
 - API contract for `/query` unchanged. The agent trace still has 5 events on every call.
+- README now includes a portfolio case study, AI Engineer proof points, resume bullets, and an up-to-date API surface.
 
 ### Deployment
 

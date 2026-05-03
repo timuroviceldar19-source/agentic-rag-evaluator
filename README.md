@@ -19,6 +19,7 @@ The app ingests documents, retrieves relevant chunks, generates an answer, and t
 
 - [Why this project exists](#why-this-project-exists)
 - [Architecture](#architecture)
+- [Portfolio case study](#portfolio-case-study)
 - [Example run](#example-run)
 - [Quick start](#quick-start)
 - [Development](#development)
@@ -63,6 +64,29 @@ Most RAG demos stop at "ask a document a question." Real AI systems need more th
 
 This project is built to demonstrate practical AI engineering skills: FastAPI, vector search, document ingestion, agent orchestration, evaluation, Docker, tests, and a usable dashboard.
 
+## Portfolio Case Study
+
+### Problem
+
+Teams building RAG systems need to know whether an answer is useful, grounded in retrieved evidence, observable after the fact, and affordable to run. A simple chat-with-documents demo does not show those production concerns.
+
+### Solution
+
+Agentic RAG Evaluator turns a document Q&A workflow into an inspectable AI quality workspace. The system retrieves source chunks, generates an answer, runs agentic critique/evaluation steps, tracks latency and usage, persists query runs, and lets users compare orchestration configurations side by side.
+
+### What This Proves
+
+- Built an end-to-end AI application with FastAPI, React, vector search, LangGraph orchestration, Docker, CI, and cloud deployment.
+- Designed evaluation and observability into the product instead of treating them as afterthoughts.
+- Preserved a zero-key demo path with local fallback while keeping the interface ready for OpenAI-backed generation and cost tracking.
+- Added regression coverage for graph orchestration, benchmark metrics, query history, and deployment-facing behavior.
+
+### Resume Bullets
+
+- Built and deployed a production-style multi-agent RAG evaluator with FastAPI, React, LangGraph, Docker, Render, and Vercel, including source-grounded answers, quality scoring, trace visibility, and live demo access.
+- Implemented RAG evaluation workflows with RAGAS-style benchmark metrics, model/config comparison, persisted query history, token/cost tracking, and pytest coverage across backend contracts.
+- Designed a recruiter-friendly AI engineering portfolio project with screenshots, architecture docs, deployment notes, CI, Docker Compose, and a zero-key local fallback for reliable demos.
+
 ## Features
 
 - Upload PDF, TXT, Markdown, or MD files
@@ -93,6 +117,8 @@ FastAPI Backend
 Document Loader -> Chunker -> Vector Store
   |
 Retrieval Agent -> Answer Agent -> Critic Agent -> Evaluation Agent -> Report Agent
+  |
+Query History + Benchmark Reports + Usage/Cost Tracking
 ```
 
 ## Tech Stack
@@ -218,9 +244,11 @@ PostgreSQL: `localhost:5432`
 
 - `GET /health`
 - `GET /documents`
+- `GET /history`
 - `POST /documents/upload`
 - `DELETE /documents/{document_id}`
 - `POST /query`
+- `POST /query/compare`
 - `POST /reset`
 
 Example query:
@@ -308,6 +336,5 @@ To self-host:
 - See [ROADMAP.md](ROADMAP.md) for issue-style milestones with scope and acceptance criteria.
 
 - Add reranking
-- Add cost and token tracking
 - Add MCP tool integrations
 - Add authentication
