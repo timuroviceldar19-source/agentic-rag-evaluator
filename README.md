@@ -40,17 +40,15 @@ The app ingests documents, retrieves relevant chunks, generates an answer, and t
 
 ## Screenshots
 
-<img src="https://raw.githubusercontent.com/timuroviceldar19-source/agentic-rag-evaluator/main/docs/screenshots/01-upload-dashboard.png" alt="Document upload dashboard" width="100%">
+**Answer workspace**
 
 <img src="https://raw.githubusercontent.com/timuroviceldar19-source/agentic-rag-evaluator/main/docs/screenshots/02-answer-evaluation.png" alt="Answer with evaluation scores" width="100%">
 
-<img src="https://raw.githubusercontent.com/timuroviceldar19-source/agentic-rag-evaluator/main/docs/screenshots/03-agent-trace.png" alt="Agent trace panel" width="520">
+**Model comparison**
 
 <img src="https://raw.githubusercontent.com/timuroviceldar19-source/agentic-rag-evaluator/main/docs/screenshots/04-model-comparison.png" alt="Model comparison view" width="100%">
 
-<img src="https://raw.githubusercontent.com/timuroviceldar19-source/agentic-rag-evaluator/main/docs/screenshots/05-query-history.png" alt="Recent query history panel" width="100%">
-
-<img src="https://raw.githubusercontent.com/timuroviceldar19-source/agentic-rag-evaluator/main/docs/screenshots/06-cost-tracking.png" alt="Token and cost tracking in saved runs" width="100%">
+Additional focused captures are available in [`docs/screenshots`](docs/screenshots): upload state, agent trace, recent runs, and usage/cost cards.
 
 ## Why This Project Exists
 
