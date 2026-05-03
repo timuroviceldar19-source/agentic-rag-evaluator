@@ -30,6 +30,7 @@ The app ingests documents, retrieves relevant chunks, generates an answer, and t
 - Multi-agent RAG workflow with retrieval, answering, critique, evaluation, and reporting
 - Source-backed answers with relevance, groundedness, completeness, and hallucination risk
 - Side-by-side comparison for LangGraph orchestration versus the linear baseline
+- RAGAS-style benchmark with faithfulness, answer relevance, context precision, and context recall
 - Zero-key local fallback for demos, optional OpenAI generation for stronger answers
 - `VECTOR_STORE=local` by default, `VECTOR_STORE=chroma` when ChromaDB is installed
 - FastAPI backend, React dashboard, Docker setup, GitHub Actions, and pytest coverage
@@ -236,18 +237,27 @@ cd frontend
 npm run build
 ```
 
-Run the RAG quality benchmark:
+Run the RAGAS-style quality benchmark:
 
 ```bash
 cd backend
 python scripts/run_benchmark.py
 ```
 
+Write a Markdown report:
+
+```bash
+python scripts/run_benchmark.py --output ../docs/benchmark-results.md
+```
+
 For JSON output:
 
 ```bash
-python scripts/run_benchmark.py --json
+python scripts/run_benchmark.py --json --output ../docs/benchmark-results.json
 ```
+
+The benchmark reports faithfulness, answer relevance, context precision, context recall, expected term coverage, hallucination risk, and latency for each question.
+See [docs/benchmark-results.md](docs/benchmark-results.md) for the latest checked-in sample run.
 
 To add a new agent, create the logic in `backend/app/services/agents.py`, append an `AgentTraceEvent`, and expose any new output through the Pydantic response models in `backend/app/models/schemas.py`.
 
@@ -283,10 +293,8 @@ To self-host:
 
 - See [ROADMAP.md](ROADMAP.md) for issue-style milestones with scope and acceptance criteria.
 
-- Add RAGAS-style benchmark datasets
 - Add reranking
 - Add PostgreSQL history
-- Add model comparison
 - Add cost and token tracking
 - Add MCP tool integrations
 - Add authentication

@@ -24,15 +24,24 @@ def main() -> None:
         action="store_true",
         help="Print the full report as JSON.",
     )
+    parser.add_argument(
+        "--output",
+        type=Path,
+        help="Optional path to write the benchmark report.",
+    )
     args = parser.parse_args()
 
     report = BenchmarkRunner().run(args.dataset.resolve())
     if args.json:
-        print(json.dumps(report.model_dump(), indent=2))
+        output = json.dumps(report.model_dump(), indent=2)
     else:
-        print(format_benchmark_report(report))
+        output = format_benchmark_report(report)
+
+    if args.output:
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        args.output.write_text(output + "\n", encoding="utf-8")
+    print(output)
 
 
 if __name__ == "__main__":
     main()
-

@@ -25,6 +25,13 @@ class BenchmarkDataset(BaseModel):
     questions: list[BenchmarkQuestion]
 
 
+class RagasStyleScores(BaseModel):
+    faithfulness: int
+    answer_relevance: int
+    context_precision: int
+    context_recall: int
+
+
 class BenchmarkQuestionResult(BaseModel):
     id: str
     question: str
@@ -37,6 +44,7 @@ class BenchmarkQuestionResult(BaseModel):
     source_count: int
     latency_ms: int
     missing_expected_terms: list[str]
+    ragas_scores: RagasStyleScores
 
 
 class BenchmarkSummary(BaseModel):
@@ -46,6 +54,10 @@ class BenchmarkSummary(BaseModel):
     average_groundedness: int
     average_completeness: int
     average_expected_coverage: int
+    average_faithfulness: int
+    average_answer_relevance: int
+    average_context_precision: int
+    average_context_recall: int
     high_risk_answers: int
     total_latency_ms: int
 
@@ -104,6 +116,7 @@ class BenchmarkRunner:
             response,
             question.expected_terms,
         )
+        ragas_scores = ragas_style_scores(response, question.expected_terms)
 
         return BenchmarkQuestionResult(
             id=question.id,
@@ -117,6 +130,7 @@ class BenchmarkRunner:
             source_count=len(response.sources),
             latency_ms=response.latency_ms,
             missing_expected_terms=missing_terms,
+            ragas_scores=ragas_scores,
         )
 
     def _summarize(
@@ -132,6 +146,18 @@ class BenchmarkRunner:
             average_completeness=_average([result.completeness_score for result in results]),
             average_expected_coverage=_average(
                 [result.expected_coverage_score for result in results]
+            ),
+            average_faithfulness=_average(
+                [result.ragas_scores.faithfulness for result in results]
+            ),
+            average_answer_relevance=_average(
+                [result.ragas_scores.answer_relevance for result in results]
+            ),
+            average_context_precision=_average(
+                [result.ragas_scores.context_precision for result in results]
+            ),
+            average_context_recall=_average(
+                [result.ragas_scores.context_recall for result in results]
             ),
             high_risk_answers=sum(1 for result in results if result.hallucination_risk == "high"),
             total_latency_ms=sum(result.latency_ms for result in results),
@@ -162,33 +188,91 @@ def expected_term_coverage(
     return round((covered / len(expected_terms)) * 100), missing_terms
 
 
+def ragas_style_scores(
+    response: QueryResponse,
+    expected_terms: list[str],
+) -> RagasStyleScores:
+    context_text = " ".join(source.text for source in response.sources).lower()
+    context_tokens = set(tokenize(context_text))
+
+    return RagasStyleScores(
+        faithfulness=response.evaluation.groundedness_score,
+        answer_relevance=response.evaluation.relevance_score,
+        context_precision=_context_precision(response, expected_terms),
+        context_recall=_coverage_score(expected_terms, context_text, context_tokens),
+    )
+
+
 def format_benchmark_report(report: BenchmarkReport) -> str:
     summary = report.summary
     lines = [
-        "RAG Benchmark Results",
+        "# RAGAS-Style RAG Benchmark Results",
+        "",
         f"Dataset: {summary.dataset_name}",
         f"Questions: {summary.question_count}",
+        "",
+        "## Aggregate Metrics",
+        "",
         f"Average relevance: {summary.average_relevance}%",
         f"Average groundedness: {summary.average_groundedness}%",
         f"Average completeness: {summary.average_completeness}%",
         f"Expected term coverage: {summary.average_expected_coverage}%",
+        f"Faithfulness: {summary.average_faithfulness}%",
+        f"Answer relevance: {summary.average_answer_relevance}%",
+        f"Context precision: {summary.average_context_precision}%",
+        f"Context recall: {summary.average_context_recall}%",
         f"High-risk answers: {summary.high_risk_answers}",
         f"Total latency: {summary.total_latency_ms} ms",
         "",
-        "Per-question results:",
+        "## Per-Question Results",
+        "",
+        "| ID | Faithfulness | Answer relevance | Context precision | Context recall | Coverage | Risk | Missing terms |",
+        "|---|---:|---:|---:|---:|---:|---|---|",
     ]
 
     for result in report.results:
         missing = ", ".join(result.missing_expected_terms) or "none"
         lines.append(
-            "- "
-            f"{result.id}: relevance={result.relevance_score}%, "
-            f"groundedness={result.groundedness_score}%, "
-            f"coverage={result.expected_coverage_score}%, "
-            f"risk={result.hallucination_risk}, "
-            f"missing={missing}"
+            f"| {result.id} | "
+            f"{result.ragas_scores.faithfulness}% | "
+            f"{result.ragas_scores.answer_relevance}% | "
+            f"{result.ragas_scores.context_precision}% | "
+            f"{result.ragas_scores.context_recall}% | "
+            f"{result.expected_coverage_score}% | "
+            f"{result.hallucination_risk} | "
+            f"{missing} |"
         )
     return "\n".join(lines)
+
+
+def _context_precision(response: QueryResponse, expected_terms: list[str]) -> int:
+    if not response.sources:
+        return 0
+
+    question_tokens = set(tokenize(response.question))
+    relevant_sources = 0
+    for source in response.sources:
+        source_text = source.text.lower()
+        source_tokens = set(tokenize(source_text))
+        has_expected_term = any(
+            _term_present(term, source_text, source_tokens)
+            for term in expected_terms
+        )
+        has_question_overlap = bool(question_tokens & source_tokens)
+        if has_expected_term or has_question_overlap:
+            relevant_sources += 1
+
+    return round((relevant_sources / len(response.sources)) * 100)
+
+
+def _coverage_score(expected_terms: list[str], text: str, tokens: set[str]) -> int:
+    if not expected_terms:
+        return 100
+
+    covered = sum(
+        1 for term in expected_terms if _term_present(term, text, tokens)
+    )
+    return round((covered / len(expected_terms)) * 100)
 
 
 def _term_present(term: str, text: str, tokens: set[str]) -> bool:

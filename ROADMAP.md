@@ -33,7 +33,7 @@ Add a small benchmark workflow for evaluating RAG answer quality across a repeat
 
 ### Status
 
-Initial benchmark runner added. Future work can replace the heuristic metrics with a full RAGAS integration.
+Initial RAGAS-style benchmark workflow added with faithfulness, answer relevance, context precision, context recall, Markdown export, and JSON export. Future work can replace the heuristic scorers with the full RAGAS library.
 
 ### Why It Matters
 
