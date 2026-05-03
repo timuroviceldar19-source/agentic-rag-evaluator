@@ -42,6 +42,8 @@ The app ingests documents, retrieves relevant chunks, generates an answer, and t
 
 <img src="https://raw.githubusercontent.com/timuroviceldar19-source/agentic-rag-evaluator/main/docs/screenshots/03-agent-trace.png" alt="Agent trace panel" width="520">
 
+<img src="https://raw.githubusercontent.com/timuroviceldar19-source/agentic-rag-evaluator/main/docs/screenshots/04-model-comparison.png" alt="Model comparison view" width="100%">
+
 ## Why This Project Exists
 
 Most RAG demos stop at "ask a document a question." Real AI systems need more than an answer:

@@ -1,4 +1,5 @@
 from fastapi import APIRouter, File, HTTPException, UploadFile
+from fastapi.responses import RedirectResponse
 
 from app.core.config import get_settings
 from app.models.schemas import (
@@ -28,6 +29,11 @@ def health() -> dict[str, str]:
         "app": settings.app_name,
         "vector_store": settings.vector_store,
     }
+
+
+@router.get("/", include_in_schema=False)
+def docs_redirect() -> RedirectResponse:
+    return RedirectResponse(url="/docs")
 
 
 @router.get("/documents", response_model=list[DocumentInfo])
