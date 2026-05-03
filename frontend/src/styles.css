@@ -181,6 +181,66 @@ button:disabled {
   margin-top: 16px;
 }
 
+.history-panel {
+  border-top: 1px solid #e2e8f0;
+  margin-top: 18px;
+  padding-top: 18px;
+}
+
+.history-list {
+  display: grid;
+  gap: 10px;
+}
+
+.history-row {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 12px;
+  color: #263242;
+  text-align: left;
+}
+
+.history-row:hover {
+  background: #f8fbff;
+  border-color: #bfd0e2;
+}
+
+.history-row strong {
+  display: -webkit-box;
+  overflow: hidden;
+  line-height: 1.35;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.history-row span:last-child {
+  color: #667085;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.history-risk {
+  justify-self: start;
+  border-radius: 999px;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.empty-history {
+  border-radius: 8px;
+  background: #f6f8fb;
+  color: #667085;
+  padding: 12px;
+  text-align: center;
+  font-weight: 800;
+}
+
 .document-row {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;

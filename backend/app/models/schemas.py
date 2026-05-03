@@ -4,6 +4,7 @@ from pydantic import BaseModel, Field
 
 PipelineEngine = Literal["linear", "langgraph"]
 GenerationMode = Literal["openai", "local_fallback"]
+QueryRunType = Literal["single", "comparison"]
 
 
 class DocumentInfo(BaseModel):
@@ -97,3 +98,22 @@ class QueryComparisonRun(BaseModel):
 class QueryComparisonResponse(BaseModel):
     question: str
     runs: list[QueryComparisonRun]
+
+
+class QueryHistoryItem(BaseModel):
+    run_id: str
+    created_at: str
+    question: str
+    answer: str
+    relevance_score: int
+    groundedness_score: int
+    completeness_score: int
+    hallucination_risk: Literal["low", "medium", "high"]
+    source_count: int
+    latency_ms: int
+    pipeline_engine: PipelineEngine
+    generation_mode: GenerationMode
+    model: str
+    run_label: str
+    run_type: QueryRunType
+    response: QueryResponse

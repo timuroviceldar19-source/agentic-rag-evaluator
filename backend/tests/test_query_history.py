@@ -1,0 +1,86 @@
+from pathlib import Path
+
+from app.models.schemas import AgentTraceEvent, EvaluationResult, QueryResponse, SourceChunk
+from app.services.query_history import QueryHistoryStore
+
+
+def test_query_history_persists_full_response(tmp_path: Path) -> None:
+    store = QueryHistoryStore(f"sqlite:///{tmp_path / 'history.db'}")
+    response = _query_response()
+
+    saved = store.save_run(
+        response=response,
+        pipeline_engine="langgraph",
+        generation_mode="local_fallback",
+        model="local-extractive",
+        run_label="LangGraph",
+        run_type="single",
+    )
+
+    recent = store.list_recent(limit=5)
+
+    assert saved.run_id
+    assert len(recent) == 1
+    assert recent[0].question == response.question
+    assert recent[0].pipeline_engine == "langgraph"
+    assert recent[0].generation_mode == "local_fallback"
+    assert recent[0].source_count == 1
+    assert recent[0].response.sources[0].document_name == "notes.md"
+    assert recent[0].response.agent_trace[0].agent == "Retrieval Agent"
+
+
+def test_query_history_respects_limit(tmp_path: Path) -> None:
+    store = QueryHistoryStore(f"sqlite:///{tmp_path / 'history.db'}")
+    for index in range(3):
+        response = _query_response(question=f"What matters for RAG #{index}?")
+        store.save_run(
+            response=response,
+            pipeline_engine="linear",
+            generation_mode="local_fallback",
+            model="local-extractive",
+            run_label="Linear baseline",
+            run_type="comparison",
+        )
+
+    recent = store.list_recent(limit=2)
+
+    assert len(recent) == 2
+    assert all(item.run_type == "comparison" for item in recent)
+
+
+def _query_response(question: str = "What matters for RAG?") -> QueryResponse:
+    return QueryResponse(
+        question=question,
+        answer="Grounded answers need retrieval, evaluation, and traceability.",
+        sources=[
+            SourceChunk(
+                chunk_id="doc:0",
+                document_id="doc",
+                document_name="notes.md",
+                page=None,
+                chunk_index=0,
+                text="RAG systems need retrieval, evaluation, and traceability.",
+                score=0.9,
+            )
+        ],
+        evaluation=EvaluationResult(
+            relevance_score=90,
+            groundedness_score=100,
+            completeness_score=85,
+            hallucination_risk="low",
+            supported_claims=["Grounded answers need retrieval."],
+            unsupported_claims=[],
+            missing_evidence=[],
+            critic_notes="Answer is grounded in the retrieved source.",
+        ),
+        agent_trace=[
+            AgentTraceEvent(
+                agent="Retrieval Agent",
+                action="Search vector store",
+                status="ok",
+                detail="Found 1 source chunks.",
+                duration_ms=1,
+            )
+        ],
+        latency_ms=7,
+    )

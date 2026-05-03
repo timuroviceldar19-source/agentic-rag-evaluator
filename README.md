@@ -31,6 +31,7 @@ The app ingests documents, retrieves relevant chunks, generates an answer, and t
 - Source-backed answers with relevance, groundedness, completeness, and hallucination risk
 - Side-by-side comparison for LangGraph orchestration versus the linear baseline
 - RAGAS-style benchmark with faithfulness, answer relevance, context precision, and context recall
+- Query history persistence for recent questions, answers, scores, sources, latency, and traces
 - Zero-key local fallback for demos, optional OpenAI generation for stronger answers
 - `VECTOR_STORE=local` by default, `VECTOR_STORE=chroma` when ChromaDB is installed
 - FastAPI backend, React dashboard, Docker setup, GitHub Actions, and pytest coverage
@@ -44,6 +45,8 @@ The app ingests documents, retrieves relevant chunks, generates an answer, and t
 <img src="https://raw.githubusercontent.com/timuroviceldar19-source/agentic-rag-evaluator/main/docs/screenshots/03-agent-trace.png" alt="Agent trace panel" width="520">
 
 <img src="https://raw.githubusercontent.com/timuroviceldar19-source/agentic-rag-evaluator/main/docs/screenshots/04-model-comparison.png" alt="Model comparison view" width="100%">
+
+<img src="https://raw.githubusercontent.com/timuroviceldar19-source/agentic-rag-evaluator/main/docs/screenshots/05-query-history.png" alt="Recent query history panel" width="100%">
 
 ## Why This Project Exists
 
@@ -74,6 +77,7 @@ This project is built to demonstrate practical AI engineering skills: FastAPI, v
 - Show relevance, groundedness, completeness, and hallucination risk
 - Display agent trace, latency, sources, and critic notes
 - Compare the same question across LangGraph and linear pipeline configurations
+- Persist recent query runs and reload saved answers from the dashboard
 
 ## Architecture
 
@@ -93,6 +97,7 @@ Retrieval Agent -> Answer Agent -> Critic Agent -> Evaluation Agent -> Report Ag
 - Orchestration: LangGraph for agent graph, with a linear fallback engine
 - RAG: local hashed vector store by default, optional ChromaDB backend
 - LLM: optional OpenAI API, local fallback when no key is present
+- History: PostgreSQL via `DATABASE_URL`, with a local SQLite fallback for zero-config demos
 - Frontend: React, TypeScript, Vite, lucide-react
 - DevOps: Docker, Docker Compose, GitHub Actions
 - Tests: pytest
@@ -202,6 +207,7 @@ docker compose up --build
 
 Frontend: `http://localhost:5173`  
 Backend API docs: `http://localhost:8000/docs`
+PostgreSQL: `localhost:5432`
 
 ## API
 
@@ -274,6 +280,7 @@ Backend environment variables in production:
 |---|---|
 | `VECTOR_STORE` | `local` (JSON-backed, ephemeral on free tier — resets on restart) |
 | `PIPELINE_ENGINE` | `langgraph` |
+| `DATABASE_URL` | Optional. Defaults to local SQLite; set PostgreSQL for durable history |
 | `ALLOWED_ORIGINS` | The Vercel frontend URL |
 | `OPENAI_API_KEY` | *(unset)* — demo uses the local extractive fallback |
 
@@ -294,8 +301,6 @@ To self-host:
 - See [ROADMAP.md](ROADMAP.md) for issue-style milestones with scope and acceptance criteria.
 
 - Add reranking
-- Add PostgreSQL history
 - Add cost and token tracking
 - Add MCP tool integrations
 - Add authentication
-- Deploy demo to a cloud provider

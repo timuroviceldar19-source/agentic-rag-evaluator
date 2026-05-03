@@ -15,6 +15,7 @@ class Settings(BaseSettings):
     openai_model: str = "gpt-4o-mini"
     vector_store: Literal["local", "chroma"] = "local"
     pipeline_engine: Literal["linear", "langgraph"] = "langgraph"
+    database_url: str | None = None
 
     @field_validator("allowed_origins", mode="before")
     @classmethod
@@ -44,6 +45,10 @@ class Settings(BaseSettings):
     @property
     def chroma_dir(self) -> Path:
         return self.data_dir / "chroma"
+
+    @property
+    def query_history_database_url(self) -> str:
+        return self.database_url or f"sqlite:///{self.data_dir / 'query_history.db'}"
 
 
 @lru_cache

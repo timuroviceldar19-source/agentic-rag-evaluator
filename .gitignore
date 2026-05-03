@@ -15,6 +15,7 @@ frontend/vite.config.js
 frontend/vite.config.d.ts
 
 backend/data/vector_store.json
+backend/data/query_history.db*
 backend/data/*.tmp
 
 .DS_Store

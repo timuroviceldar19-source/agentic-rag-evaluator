@@ -69,6 +69,27 @@ export type QueryComparisonResponse = {
   runs: QueryComparisonRun[];
 };
 
+export type QueryRunType = "single" | "comparison";
+
+export type QueryHistoryItem = {
+  run_id: string;
+  created_at: string;
+  question: string;
+  answer: string;
+  relevance_score: number;
+  groundedness_score: number;
+  completeness_score: number;
+  hallucination_risk: "low" | "medium" | "high";
+  source_count: number;
+  latency_ms: number;
+  pipeline_engine: PipelineEngine;
+  generation_mode: GenerationMode;
+  model: string;
+  run_label: string;
+  run_type: QueryRunType;
+  response: QueryResponse;
+};
+
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
@@ -82,6 +103,10 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 
 export function fetchDocuments() {
   return request<DocumentInfo[]>("/documents");
+}
+
+export function fetchHistory(limit = 8) {
+  return request<QueryHistoryItem[]>(`/history?limit=${limit}`);
 }
 
 export function uploadDocuments(files: FileList) {

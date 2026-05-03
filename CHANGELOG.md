@@ -12,6 +12,7 @@ All notable changes to this project are documented here.
 - Tests `tests/test_graph.py` and `tests/test_pipeline_factory.py` covering the graph happy path, no-sources short-circuit, latency, schema parity with the linear engine, and factory selection.
 - Model comparison endpoint `/query/compare` and dashboard view for side-by-side LangGraph versus linear baseline evaluation.
 - RAGAS-style benchmark metrics for faithfulness, answer relevance, context precision, and context recall, with Markdown/JSON CLI export.
+- Query history persistence for questions, answers, scores, sources, latency, and agent traces, plus a dashboard recent-runs panel.
 
 ### Changed
 
@@ -27,6 +28,7 @@ All notable changes to this project are documented here.
 ### Dependencies
 
 - Added `langgraph==0.2.60`.
+- Added `psycopg[binary]==3.2.3` for PostgreSQL query history.
 
 ## v0.1.0 - 2026-05-02
 

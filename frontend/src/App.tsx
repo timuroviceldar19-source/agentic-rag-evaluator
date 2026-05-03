@@ -6,6 +6,7 @@ import {
   Database,
   FileText,
   GitCompareArrows,
+  History,
   Loader2,
   Search,
   Send,
@@ -16,15 +17,17 @@ import {
 import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "react";
 import {
   AgentTraceEvent,
-  QueryComparisonResponse,
-  QueryComparisonRun,
   DocumentInfo,
   EvaluationResult,
+  QueryComparisonResponse,
+  QueryComparisonRun,
+  QueryHistoryItem,
   QueryResponse,
   askQuestion,
   compareQuestion,
   deleteDocument,
   fetchDocuments,
+  fetchHistory,
   resetIndex,
   uploadDocuments,
 } from "./lib/api";
@@ -37,6 +40,7 @@ function App() {
   const [topK, setTopK] = useState(5);
   const [result, setResult] = useState<QueryResponse | null>(null);
   const [comparison, setComparison] = useState<QueryComparisonResponse | null>(null);
+  const [history, setHistory] = useState<QueryHistoryItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [comparing, setComparing] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -49,11 +53,20 @@ function App() {
 
   useEffect(() => {
     refreshDocuments();
+    refreshHistory();
   }, []);
 
   async function refreshDocuments() {
     try {
       setDocuments(await fetchDocuments());
+    } catch (err) {
+      setError(errorMessage(err));
+    }
+  }
+
+  async function refreshHistory() {
+    try {
+      setHistory(await fetchHistory());
     } catch (err) {
       setError(errorMessage(err));
     }
@@ -82,7 +95,9 @@ function App() {
     setError(null);
     setComparison(null);
     try {
-      setResult(await askQuestion(question.trim(), topK));
+      const response = await askQuestion(question.trim(), topK);
+      setResult(response);
+      await refreshHistory();
     } catch (err) {
       setError(errorMessage(err));
     } finally {
@@ -96,12 +111,20 @@ function App() {
     setError(null);
     setResult(null);
     try {
-      setComparison(await compareQuestion(question.trim(), topK));
+      const response = await compareQuestion(question.trim(), topK);
+      setComparison(response);
+      await refreshHistory();
     } catch (err) {
       setError(errorMessage(err));
     } finally {
       setComparing(false);
     }
+  }
+
+  function handleLoadHistory(item: QueryHistoryItem) {
+    setQuestion(item.question);
+    setComparison(null);
+    setResult(item.response);
   }
 
   async function handleDelete(documentId: string) {
@@ -198,6 +221,8 @@ function App() {
               </article>
             ))}
           </div>
+
+          <HistoryPanel history={history} onLoad={handleLoadHistory} />
         </aside>
 
         <section className="main-panel">
@@ -258,6 +283,51 @@ function App() {
         </section>
       </section>
     </main>
+  );
+}
+
+function HistoryPanel({
+  history,
+  onLoad,
+}: {
+  history: QueryHistoryItem[];
+  onLoad: (item: QueryHistoryItem) => void;
+}) {
+  return (
+    <section className="history-panel">
+      <div className="panel-heading">
+        <div>
+          <p className="eyebrow">Observability</p>
+          <h2>Recent Runs</h2>
+        </div>
+        <History size={18} />
+      </div>
+
+      <div className="history-list">
+        {history.length === 0 && (
+          <div className="empty-history">
+            <span>No saved runs yet</span>
+          </div>
+        )}
+        {history.map((item) => (
+          <button
+            className="history-row"
+            key={item.run_id}
+            type="button"
+            onClick={() => onLoad(item)}
+          >
+            <span className={`history-risk risk-${item.hallucination_risk}`}>
+              {item.hallucination_risk}
+            </span>
+            <strong>{item.question}</strong>
+            <span>
+              {formatEngine(item.pipeline_engine)} / {item.latency_ms} ms /{" "}
+              {item.source_count} sources
+            </span>
+          </button>
+        ))}
+      </div>
+    </section>
   );
 }
 

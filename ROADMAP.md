@@ -58,6 +58,10 @@ A portfolio RAG project is stronger when it shows repeatable evaluation, not onl
 
 Persist user questions, retrieved sources, answers, evaluation scores, latency, and agent traces in PostgreSQL.
 
+### Status
+
+Initial query history added. The backend stores full query responses through a `DATABASE_URL`-driven database layer, Docker Compose includes PostgreSQL, and the dashboard shows recent runs with saved answers.
+
 ### Why It Matters
 
 Production AI systems need observability and history so teams can inspect failures, compare answers, and improve prompts over time.
