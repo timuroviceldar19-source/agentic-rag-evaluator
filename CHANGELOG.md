@@ -16,6 +16,12 @@ All notable changes to this project are documented here.
 - `app/services/agents.py` slimmed down: shared scoring logic moved to `app/services/agent_helpers.py` and is reused by both engines.
 - API contract for `/query` unchanged. The agent trace still has 5 events on every call.
 
+### Deployment
+
+- Public demo deployed to [Vercel](https://agentic-rag-evaluator-ykzi.vercel.app) for the frontend and [Render](https://render.com) for the backend.
+- `allowed_origins` setting is now configurable via the `ALLOWED_ORIGINS` env var in CSV format.
+- Backend Dockerfile uses the `$PORT` env var so the same image works on Render, Fly.io, and other PaaS hosts.
+
 ### Dependencies
 
 - Added `langgraph==0.2.60`.
