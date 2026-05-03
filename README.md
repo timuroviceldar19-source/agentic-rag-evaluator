@@ -29,6 +29,7 @@ The app ingests documents, retrieves relevant chunks, generates an answer, and t
 
 - Multi-agent RAG workflow with retrieval, answering, critique, evaluation, and reporting
 - Source-backed answers with relevance, groundedness, completeness, and hallucination risk
+- Side-by-side comparison for LangGraph orchestration versus the linear baseline
 - Zero-key local fallback for demos, optional OpenAI generation for stronger answers
 - `VECTOR_STORE=local` by default, `VECTOR_STORE=chroma` when ChromaDB is installed
 - FastAPI backend, React dashboard, Docker setup, GitHub Actions, and pytest coverage
@@ -69,6 +70,7 @@ This project is built to demonstrate practical AI engineering skills: FastAPI, v
   - Report Agent
 - Show relevance, groundedness, completeness, and hallucination risk
 - Display agent trace, latency, sources, and critic notes
+- Compare the same question across LangGraph and linear pipeline configurations
 
 ## Architecture
 

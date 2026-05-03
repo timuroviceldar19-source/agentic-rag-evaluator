@@ -44,6 +44,31 @@ export type QueryResponse = {
   latency_ms: number;
 };
 
+export type PipelineEngine = "linear" | "langgraph";
+
+export type GenerationMode = "openai" | "local_fallback";
+
+export type QueryComparisonConfig = {
+  pipeline_engine: PipelineEngine;
+  label?: string | null;
+  top_k?: number | null;
+  openai_model?: string | null;
+};
+
+export type QueryComparisonRun = {
+  label: string;
+  pipeline_engine: PipelineEngine;
+  model: string;
+  generation_mode: GenerationMode;
+  top_k: number;
+  response: QueryResponse;
+};
+
+export type QueryComparisonResponse = {
+  question: string;
+  runs: QueryComparisonRun[];
+};
+
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:8000";
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
@@ -84,7 +109,16 @@ export function askQuestion(question: string, topK: number) {
   });
 }
 
+export function compareQuestion(question: string, topK: number) {
+  return request<QueryComparisonResponse>("/query/compare", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ question, top_k: topK }),
+  });
+}
+
 export function resetIndex() {
   return request<{ reset: boolean }>("/reset", { method: "POST" });
 }
-

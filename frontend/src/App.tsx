@@ -5,6 +5,7 @@ import {
   CheckCircle2,
   Database,
   FileText,
+  GitCompareArrows,
   Loader2,
   Search,
   Send,
@@ -15,10 +16,13 @@ import {
 import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "react";
 import {
   AgentTraceEvent,
+  QueryComparisonResponse,
+  QueryComparisonRun,
   DocumentInfo,
   EvaluationResult,
   QueryResponse,
   askQuestion,
+  compareQuestion,
   deleteDocument,
   fetchDocuments,
   resetIndex,
@@ -32,7 +36,9 @@ function App() {
   const [question, setQuestion] = useState(sampleQuestion);
   const [topK, setTopK] = useState(5);
   const [result, setResult] = useState<QueryResponse | null>(null);
+  const [comparison, setComparison] = useState<QueryComparisonResponse | null>(null);
   const [loading, setLoading] = useState(false);
+  const [comparing, setComparing] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -74,6 +80,7 @@ function App() {
     if (!question.trim()) return;
     setLoading(true);
     setError(null);
+    setComparison(null);
     try {
       setResult(await askQuestion(question.trim(), topK));
     } catch (err) {
@@ -83,12 +90,27 @@ function App() {
     }
   }
 
+  async function handleCompare() {
+    if (!question.trim()) return;
+    setComparing(true);
+    setError(null);
+    setResult(null);
+    try {
+      setComparison(await compareQuestion(question.trim(), topK));
+    } catch (err) {
+      setError(errorMessage(err));
+    } finally {
+      setComparing(false);
+    }
+  }
+
   async function handleDelete(documentId: string) {
     setError(null);
     try {
       await deleteDocument(documentId);
       await refreshDocuments();
       setResult(null);
+      setComparison(null);
     } catch (err) {
       setError(errorMessage(err));
     }
@@ -100,6 +122,7 @@ function App() {
       await resetIndex();
       await refreshDocuments();
       setResult(null);
+      setComparison(null);
     } catch (err) {
       setError(errorMessage(err));
     }
@@ -187,10 +210,25 @@ function App() {
                   onChange={(event) => setQuestion(event.target.value)}
                   placeholder="Ask a question about your documents"
                 />
-                <button type="submit" disabled={loading}>
-                  {loading ? <Loader2 className="spin" size={18} /> : <Send size={18} />}
-                  <span>Ask</span>
-                </button>
+                <div className="query-actions">
+                  <button type="submit" disabled={loading || comparing}>
+                    {loading ? <Loader2 className="spin" size={18} /> : <Send size={18} />}
+                    <span>Ask</span>
+                  </button>
+                  <button
+                    className="secondary-action"
+                    type="button"
+                    disabled={loading || comparing}
+                    onClick={handleCompare}
+                  >
+                    {comparing ? (
+                      <Loader2 className="spin" size={18} />
+                    ) : (
+                      <GitCompareArrows size={18} />
+                    )}
+                    <span>Compare</span>
+                  </button>
+                </div>
               </div>
               <div className="control-row">
                 <label htmlFor="top-k">Sources</label>
@@ -207,7 +245,9 @@ function App() {
             </form>
           </section>
 
-          {result ? (
+          {comparison ? (
+            <ComparisonView comparison={comparison} />
+          ) : result ? (
             <ResultView result={result} />
           ) : (
             <section className="panel empty-result">
@@ -218,6 +258,72 @@ function App() {
         </section>
       </section>
     </main>
+  );
+}
+
+function ComparisonView({ comparison }: { comparison: QueryComparisonResponse }) {
+  return (
+    <section className="comparison-grid">
+      {comparison.runs.map((run) => (
+        <ComparisonCard run={run} key={`${run.pipeline_engine}-${run.label}`} />
+      ))}
+    </section>
+  );
+}
+
+function ComparisonCard({ run }: { run: QueryComparisonRun }) {
+  const { response } = run;
+  const { evaluation } = response;
+  const riskClass = `risk-${evaluation.hallucination_risk}`;
+
+  return (
+    <article className="panel comparison-card">
+      <div className="panel-heading">
+        <div>
+          <p className="eyebrow">{formatEngine(run.pipeline_engine)}</p>
+          <h2>{run.label}</h2>
+        </div>
+        <span className="latency">{response.latency_ms} ms</span>
+      </div>
+
+      <div className="comparison-meta">
+        <span>{formatGenerationMode(run.generation_mode)}</span>
+        <span>{run.model}</span>
+        <span>{run.top_k} sources</span>
+      </div>
+
+      <pre className="comparison-answer">{response.answer || "No answer generated."}</pre>
+
+      <div className="comparison-quality">
+        <div className="panel-heading compact">
+          <h3>Evaluation</h3>
+          <span className={`risk-pill ${riskClass}`}>
+            <ShieldCheck size={16} />
+            {evaluation.hallucination_risk}
+          </span>
+        </div>
+        <ScoreBar label="Relevance" value={evaluation.relevance_score} tone="teal" />
+        <ScoreBar label="Groundedness" value={evaluation.groundedness_score} tone="violet" />
+        <ScoreBar label="Completeness" value={evaluation.completeness_score} tone="amber" />
+      </div>
+
+      <div className="comparison-sources">
+        <div className="comparison-section-title">
+          <strong>{response.sources.length} evidence chunks</strong>
+          <span>{response.agent_trace.length} trace events</span>
+        </div>
+        {response.sources.slice(0, 2).map((source) => (
+          <article className="comparison-source" key={source.chunk_id}>
+            <strong>{source.document_name}</strong>
+            <span>
+              score {Math.round(source.score * 100)}%
+              {source.page ? ` / page ${source.page}` : ""}
+            </span>
+            <p>{source.text}</p>
+          </article>
+        ))}
+      </div>
+    </article>
   );
 }
 
@@ -347,5 +453,12 @@ function errorMessage(error: unknown) {
   return error instanceof Error ? error.message : "Unexpected error";
 }
 
-export default App;
+function formatEngine(engine: QueryComparisonRun["pipeline_engine"]) {
+  return engine === "langgraph" ? "LangGraph engine" : "Linear engine";
+}
 
+function formatGenerationMode(mode: QueryComparisonRun["generation_mode"]) {
+  return mode === "openai" ? "OpenAI" : "Local fallback";
+}
+
+export default App;

@@ -72,7 +72,7 @@ class AgenticRAGPipeline:
         )
 
         report_started = time.perf_counter()
-        total_ms = int((time.perf_counter() - started_at) * 1000)
+        total_ms = max(1, int((time.perf_counter() - started_at) * 1000))
         trace.append(
             make_event(
                 "Report Agent",

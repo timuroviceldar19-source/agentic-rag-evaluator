@@ -81,6 +81,10 @@ Production AI systems need observability and history so teams can inspect failur
 
 Allow users to compare answers and evaluation scores across different LLM or retrieval configurations.
 
+### Status
+
+Initial comparison view added for LangGraph orchestration versus the linear baseline. Future work can extend the same contract to compare hosted LLM models, retrieval parameters, and cost.
+
 ### Why It Matters
 
 AI engineers often need to choose between models based on quality, latency, and cost, not intuition.

@@ -10,6 +10,7 @@ All notable changes to this project are documented here.
 - Linear engine remains available as `PIPELINE_ENGINE=linear` and as a regression baseline for benchmarks.
 - Pipeline factory in `app/services/pipeline_factory.py` selects the engine.
 - Tests `tests/test_graph.py` and `tests/test_pipeline_factory.py` covering the graph happy path, no-sources short-circuit, latency, schema parity with the linear engine, and factory selection.
+- Model comparison endpoint `/query/compare` and dashboard view for side-by-side LangGraph versus linear baseline evaluation.
 
 ### Changed
 

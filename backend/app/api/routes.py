@@ -1,7 +1,15 @@
 from fastapi import APIRouter, File, HTTPException, UploadFile
 
 from app.core.config import get_settings
-from app.models.schemas import DocumentInfo, QueryRequest, QueryResponse, UploadResponse
+from app.models.schemas import (
+    DocumentInfo,
+    QueryComparisonRequest,
+    QueryComparisonResponse,
+    QueryRequest,
+    QueryResponse,
+    UploadResponse,
+)
+from app.services.comparison import run_query_comparison
 from app.services.document_loader import load_document
 from app.services.pipeline_factory import create_pipeline
 from app.services.vector_store import create_vector_store
@@ -57,6 +65,11 @@ def delete_document(document_id: str) -> dict[str, bool]:
 @router.post("/query", response_model=QueryResponse)
 def query(request: QueryRequest) -> QueryResponse:
     return pipeline.run(question=request.question, top_k=request.top_k)
+
+
+@router.post("/query/compare", response_model=QueryComparisonResponse)
+def compare_query(request: QueryComparisonRequest) -> QueryComparisonResponse:
+    return run_query_comparison(vector_store, settings, request)
 
 
 @router.post("/reset")
